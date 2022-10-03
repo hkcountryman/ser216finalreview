@@ -21,19 +21,33 @@ public class Server {
      */
     private DataOutputStream outStream;
 
+    /**
+     * The server's socket.
+     * 
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/ServerSocket.html
+     */
+    private ServerSocket serverSocket;
+
+    /**
+     * The client's socket.
+     * 
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
+     */
+    private Socket socket;
+
     /** The open port of the server. */
     private static int port;
 
     /**
-     * Server constructor.
-     *
-     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/ServerSocket.html
-     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
+     * 
+     * @param port
      */
     public Server(int port) {
-        // try setting serverSocket, socket, inStream, and outStream...
         try {
-            //
+            serverSocket = new ServerSocket(port);
+            socket = serverSocket.accept();
+            inStream = new DataInputStream(socket.getInputStream());
+            outStream = new DataOutputStream(socket.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -61,11 +75,10 @@ public class Server {
         byte[] bytes = new byte[256];
         boolean waiting = true;
         while (waiting) {
-            // use busy waiting to wait for data from the client
-            // (hint: what kind of Exception is thrown if we get no data?)
             try {
-                //
-            } catch ( /* ... */ ) {
+                server.inStream.read(bytes);
+                waiting = false;
+            } catch (SocketException e) {
                 ; // busy waiting
             } catch (IOException e) {
                 System.out.println("Error reading name!");
@@ -76,9 +89,8 @@ public class Server {
         name = new String(bytes);
         String greeting = "Hello, " + name;
         bytes = greeting.getBytes();
-        // try writing the greeting back to the client
         try {
-            //
+            server.outStream.write(bytes);
         } catch (IOException e) {
             System.out.println("Failed to greet " + name + " :(");
             e.printStackTrace();

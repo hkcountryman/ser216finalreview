@@ -38,9 +38,11 @@ public class Client {
      */
     public Client(String host, int port) {
         InetAddress ip = null;
-        // try to set ip, make a socket, and set inStream and outStream
         try {
-            //
+            ip = InetAddress.getByName(host);
+            Socket socket = new Socket(ip, port);
+            inStream = new DataInputStream(socket.getInputStream());
+            outStream = new DataOutputStream(socket.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -67,18 +69,16 @@ public class Client {
         Client client = new Client(host, port);
         System.out.println("What is your name?");
         String name = "";
-        // try (with resources!) to use Scanner to get the name
-        try ( /* ... */ ) {
-            //
+        try (Scanner scanner = new Scanner(System.in)) {
+            name = scanner.nextLine();
         } catch (Exception e) {
             System.out.println("Error reading input!");
             e.printStackTrace();
             System.exit(1);
         }
         byte[] bytes = name.getBytes();
-        // try to write to the server the bytes of the name
         try {
-            //
+            client.outStream.write(bytes);
         } catch (IOException e) {
             System.out.println("Error writing name!");
             e.printStackTrace();
@@ -87,11 +87,10 @@ public class Client {
         bytes = new byte[256];
         boolean waiting = true;
         while (waiting) {
-            // use busy waiting to wait for incoming bytes from the server
-            // (hint: if we receive no bytes, what Exception is thrown?)
             try {
-                //
-            } catch ( /* ... */ ) {
+                client.inStream.read(bytes);
+                waiting = false;
+            } catch (SocketException e) {
                 ; // busy waiting
             } catch (IOException e) {
                 System.out.println("Server failed to greet you :(");
