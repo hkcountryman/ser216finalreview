@@ -18,8 +18,8 @@ public class Thread1 extends Thread {
     public static void main(String[] args) {
         Thread1 t1 = new Thread1();
         Thread1 t2 = new Thread1("Do some different threaded printing!");
-        t1.start();
-        t2.start();
+        // Start both threads
+        //
         System.out.println("This is printing from the main process.");
     }
 

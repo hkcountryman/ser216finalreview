@@ -3,7 +3,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -52,20 +51,11 @@ public class Client {
      * @param outStream the output stream
      */
     public static void closeStreams(DataInputStream inStream, DataOutputStream outStream) {
-        try {
-            inStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                outStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        // Try closing both streams. If one fails, still need to close the other!
     }
 
     /**
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/InetAddress.html
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/util/Scanner.html
      */
@@ -76,7 +66,7 @@ public class Client {
         // Try to get host's InetAddress
         InetAddress ip = null;
         try {
-            ip = InetAddress.getByName(host);
+            //
         } catch (UnknownHostException e) {
             System.out.println("Unknown host!");
             e.printStackTrace();
@@ -86,8 +76,7 @@ public class Client {
         // Try (with resources) to open a Socket
         try (Socket socket = new Socket(ip, port)) {
             // Initialize input and output streams
-            inStream = new DataInputStream(socket.getInputStream());
-            outStream = new DataOutputStream(socket.getOutputStream());
+            //
 
             // Try (with resources) to get name from user using Scanner class
             System.out.println("What is your name?");
@@ -104,7 +93,7 @@ public class Client {
             // Convert name to bytes and try to write it to server
             byte[] bytes = name.getBytes();
             try {
-                outStream.write(bytes);
+                //
             } catch (IOException e) {
                 System.out.println("Error writing name!");
                 e.printStackTrace();
@@ -118,9 +107,8 @@ public class Client {
             while (waiting) {
                 try {
                     // Read incoming bytes
-                    inStream.read(bytes);
-                    waiting = false;
-                } catch (SocketException e) {
+                    //
+                } catch (/* ... (what Exception happens if we read nothing?) ... */) {
                     ; // busy waiting
                 } catch (IOException e) {
                     System.out.println("Server failed to greet you :(");
@@ -130,7 +118,7 @@ public class Client {
                 }
             }
 
-            // Convert bytes to greeting and display0
+            // Convert bytes to greeting and display
             String greeting = new String(bytes);
             System.out.println(greeting);
         } catch (IOException e) {

@@ -1,9 +1,5 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
 
 public class Server {
 
@@ -47,12 +43,11 @@ public class Server {
         readArgs(args);
 
         // Try (with resources) to open a ServerSocket
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (/* ... */) {
             // Try (with resources) to open a Socket
-            try (Socket socket = serverSocket.accept()) {
+            try (/* ... */) {
                 // Initialize input and output streams
-                inStream = new DataInputStream(socket.getInputStream());
-                outStream = new DataOutputStream(socket.getOutputStream());
+                //
 
                 // Use busy waiting to await bytes from client
                 String name = "";
@@ -61,9 +56,8 @@ public class Server {
                 while (waiting) {
                     try {
                         // Read incoming bytes
-                        inStream.read(bytes);
-                        waiting = false;
-                    } catch (SocketException e) {
+                        //
+                    } catch (/* ... (what Exception happens if we read nothing?) ... */) {
                         ; // busy waiting
                     } catch (IOException e) {
                         System.out.println("Error reading name!");
@@ -80,7 +74,7 @@ public class Server {
 
                 // Try to send bytes back to client
                 try {
-                    outStream.write(bytes);
+                    //
                 } catch (IOException e) {
                     System.out.println("Failed to greet " + name + " :(");
                     e.printStackTrace();
