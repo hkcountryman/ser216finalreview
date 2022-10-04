@@ -66,6 +66,7 @@ public class Client {
     }
 
     /**
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/InetAddress.html
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/util/Scanner.html
      */
@@ -130,7 +131,7 @@ public class Client {
                 }
             }
 
-            // Convert bytes to greeting and display0
+            // Convert bytes to greeting and display
             String greeting = new String(bytes);
             System.out.println(greeting);
         } catch (IOException e) {
