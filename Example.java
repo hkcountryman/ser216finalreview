@@ -28,7 +28,11 @@ public class Example {
         if (numbers.isEmpty()) {
             return numbers;
         }
-        return numbers.stream().map(num -> num / divider).collect(Collectors.toList());
+        try {
+            return numbers.stream().map(num -> num / divider).collect(Collectors.toList());
+        } catch (ArithmeticException e) {
+            return numbers.stream().filter(num -> false).collect(Collectors.toList());
+        }
     }
 
 }
