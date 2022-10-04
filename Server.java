@@ -12,47 +12,17 @@ public class Server {
      * 
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/io/DataInputStream.html
      */
-    private DataInputStream inStream;
+    private static DataInputStream inStream;
 
     /**
      * Data to the client.
      * 
      * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/io/DataOutputStream.html
      */
-    private DataOutputStream outStream;
-
-    /**
-     * The server's socket.
-     * 
-     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/ServerSocket.html
-     */
-    private ServerSocket serverSocket;
-
-    /**
-     * The client's socket.
-     * 
-     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
-     */
-    private Socket socket;
+    private static DataOutputStream outStream;
 
     /** The open port of the server. */
     private static int port;
-
-    /**
-     * 
-     * @param port
-     */
-    public Server(int port) {
-        try {
-            serverSocket = new ServerSocket(port);
-            socket = serverSocket.accept();
-            inStream = new DataInputStream(socket.getInputStream());
-            outStream = new DataOutputStream(socket.getOutputStream());
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
 
     /**
      * Reads the args array to populate the static port member.
@@ -68,33 +38,68 @@ public class Server {
         }
     }
 
+    /**
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/ServerSocket.html
+     * @see https://docs.oracle.com/en/java/javase/18/docs/api/java.base/java/net/Socket.html
+     */
     public static void main(String[] args) {
+        // Read arguments
         readArgs(args);
-        Server server = new Server(port);
-        String name = "";
-        byte[] bytes = new byte[256];
-        boolean waiting = true;
-        while (waiting) {
-            try {
-                server.inStream.read(bytes);
-                waiting = false;
-            } catch (SocketException e) {
-                ; // busy waiting
+
+        // Try (with resources) to open a ServerSocket
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            // Try (with resources) to open a Socket
+            try (Socket socket = serverSocket.accept()) {
+                // Initialize input and output streams
+                inStream = new DataInputStream(socket.getInputStream());
+                outStream = new DataOutputStream(socket.getOutputStream());
+
+                // Use busy waiting to await bytes from client
+                String name = "";
+                byte[] bytes = new byte[256];
+                boolean waiting = true;
+                while (waiting) {
+                    try {
+                        // Read incoming bytes
+                        inStream.read(bytes);
+                        waiting = false;
+                    } catch (SocketException e) {
+                        ; // busy waiting
+                    } catch (IOException e) {
+                        System.out.println("Error reading name!");
+                        e.printStackTrace();
+                        Client.closeStreams(inStream, outStream);
+                        System.exit(1);
+                    }
+                }
+
+                // Convert bytes to a string and construct greeting, then convert that to bytes
+                name = new String(bytes);
+                String greeting = "Hello, " + name;
+                bytes = greeting.getBytes();
+
+                // Try to send bytes back to client
+                try {
+                    outStream.write(bytes);
+                } catch (IOException e) {
+                    System.out.println("Failed to greet " + name + " :(");
+                    e.printStackTrace();
+                    Client.closeStreams(inStream, outStream);
+                    System.exit(1);
+                }
             } catch (IOException e) {
-                System.out.println("Error reading name!");
+                System.out.println("Error accepting connection!");
                 e.printStackTrace();
+                Client.closeStreams(inStream, outStream);
                 System.exit(1);
             }
-        }
-        name = new String(bytes);
-        String greeting = "Hello, " + name;
-        bytes = greeting.getBytes();
-        try {
-            server.outStream.write(bytes);
         } catch (IOException e) {
-            System.out.println("Failed to greet " + name + " :(");
+            System.out.println("Error opening socket!");
             e.printStackTrace();
             System.exit(1);
+        } finally {
+            // Close non-autocloseable resources
+            Client.closeStreams(inStream, outStream);
         }
     }
 
