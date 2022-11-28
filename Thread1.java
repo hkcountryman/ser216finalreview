@@ -10,16 +10,12 @@ public class Thread1 extends Thread {
         this("Do some threaded printing...");
     }
 
-    @Override
-    public void run() {
-        System.out.println(threadText);
-    }
+    // TODO: when this thread is run, print threadText
 
     public static void main(String[] args) {
-        Thread1 t1 = new Thread1();
-        Thread1 t2 = new Thread1("Do some different threaded printing!");
-        // Start both threads
-        //
+        Thread1 t1; // TODO: instantiate
+        Thread1 t2; // TODO: instantiate
+        // TODO: start both threads
         System.out.println("This is printing from the main process.");
     }
 
