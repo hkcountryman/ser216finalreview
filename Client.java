@@ -1,11 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 public class Client {
 
@@ -45,13 +40,15 @@ public class Client {
     }
 
     /**
-     * Closes an input and output stream.
+     * Does terrible, terrible exception handling.
      * 
-     * @param inStream the input stream
-     * @param outStream the output stream
+     * @param e the exception to handle
+     * @param msg a message to print
      */
-    public static void closeStreams(DataInputStream inStream, DataOutputStream outStream) {
-        // Try closing both streams. If one fails, still need to close the other!
+    public static void handleException(Exception e, String msg) {
+        System.out.println(msg);
+        e.printStackTrace();
+        System.exit(1);
     }
 
     /**
@@ -64,70 +61,50 @@ public class Client {
         readArgs(args);
 
         // Try to get host's InetAddress
-        InetAddress ip = null;
-        try {
-            //
-        } catch (UnknownHostException e) {
-            System.out.println("Unknown host!");
-            e.printStackTrace();
-            System.exit(1);
-        }
+        InetAddress ip = null; // TODO: assign the InetAddress
 
         // Try (with resources) to open a Socket
-        try (Socket socket = new Socket(ip, port)) {
-            // Initialize input and output streams
-            //
-
-            // Try (with resources) to get name from user using Scanner class
-            System.out.println("What is your name?");
-            String name = "";
-            try (Scanner scanner = new Scanner(System.in)) {
-                name = scanner.nextLine();
-            } catch (NoSuchElementException | IllegalStateException e) {
-                System.out.println("Error reading input!");
-                e.printStackTrace();
-                closeStreams(inStream, outStream);
-                System.exit(1);
-            }
-
-            // Convert name to bytes and try to write it to server
-            byte[] bytes = name.getBytes();
-            try {
-                //
-            } catch (IOException e) {
-                System.out.println("Error writing name!");
-                e.printStackTrace();
-                closeStreams(inStream, outStream);
-                System.exit(1);
-            }
-
-            // Use busy waiting to await bytes from server
-            bytes = new byte[256];
-            boolean waiting = true;
-            while (waiting) {
-                try {
-                    // Read incoming bytes
-                    //
-                } catch (/* ... (what Exception happens if we read nothing?) ... */) {
-                    ; // busy waiting
-                } catch (IOException e) {
-                    System.out.println("Server failed to greet you :(");
-                    e.printStackTrace();
-                    closeStreams(inStream, outStream);
-                    System.exit(1);
+        try (/* TODO: Open a Socket in this block */) {
+            // Try (with resources) to open in/out streams
+            try ( /* TODO: Open input and output streams in this block */ ) {
+                // Try (with resources) to get name from user using Scanner class
+                System.out.println("What is your name?");
+                String name = "";
+                try (/* TODO: Open a Scanner in this block */) {
+                    name = scanner.nextLine();
+                } catch (/* TODO: What exceptions? */) {
+                    handleException(e, "");
                 }
-            }
 
-            // Convert bytes to greeting and display
-            String greeting = new String(bytes);
-            System.out.println(greeting);
-        } catch (IOException e) {
-            System.out.println("Error opening socket!");
-            e.printStackTrace();
-            System.exit(1);
-        } finally {
-            // Close non-autocloseable resources
-            closeStreams(inStream, outStream);
+                // Convert name to bytes and try to write it to server
+                byte[] bytes = name.getBytes();
+                try {
+                    // TODO: 
+                } catch (/* TODO: What exceptions? */) {
+                    handleException(e, "");
+                }
+
+                // Use busy waiting to await bytes from server
+                bytes = new byte[256];
+                boolean waiting = true;
+                while (waiting) {
+                    try {
+                        // TODO: Read incoming bytes
+                    } catch (SocketException e) {
+                        ; // busy waiting
+                    } catch (/* TODO: What exceptions? */) {
+                        handleException(e, "");
+                    }
+                }
+
+                // Convert bytes to greeting and display
+                String greeting = new String(bytes);
+                System.out.println(greeting);
+            } catch (/* TODO: What exceptions? */) {
+                handleException(e, "");
+            }
+        } catch (/* TODO: What exceptions? */) {
+            handleException(e, "");
         }
     }
 

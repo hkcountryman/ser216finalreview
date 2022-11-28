@@ -43,57 +43,44 @@ public class Server {
         readArgs(args);
 
         // Try (with resources) to open a ServerSocket
-        try (/* ... */) {
+        try (/* TODO: Open a ServerSocket in this block */) {
             // Try (with resources) to open a Socket
-            try (/* ... */) {
-                // Initialize input and output streams
-                //
-
-                // Use busy waiting to await bytes from client
-                String name = "";
-                byte[] bytes = new byte[256];
-                boolean waiting = true;
-                while (waiting) {
-                    try {
-                        // Read incoming bytes
-                        //
-                    } catch (/* ... (what Exception happens if we read nothing?) ... */) {
-                        ; // busy waiting
-                    } catch (IOException e) {
-                        System.out.println("Error reading name!");
-                        e.printStackTrace();
-                        Client.closeStreams(inStream, outStream);
-                        System.exit(1);
+            try (/* TODO: Open a Socket in this block */) {
+                // Try (with resources) to open in/out streams
+                try ( /* TODO: Open input and output streams in this block */ ) {
+                    // Use busy waiting to await bytes from client
+                    String name = "";
+                    byte[] bytes = new byte[256];
+                    boolean waiting = true;
+                    while (waiting) {
+                        try {
+                            // TODO: Read incoming bytes
+                        } catch (SocketException e) {
+                            ; // busy waiting
+                        } catch (/* TODO: What exceptions? */) {
+                            Client.handleException(e, "");
+                        }
                     }
-                }
 
-                // Convert bytes to a string and construct greeting, then convert that to bytes
-                name = new String(bytes);
-                String greeting = "Hello, " + name;
-                bytes = greeting.getBytes();
+                    // Convert bytes to a string and construct greeting, then convert that to bytes
+                    name = new String(bytes);
+                    String greeting = "Hello, " + name;
+                    bytes = greeting.getBytes();
 
-                // Try to send bytes back to client
-                try {
-                    //
-                } catch (IOException e) {
-                    System.out.println("Failed to greet " + name + " :(");
-                    e.printStackTrace();
-                    Client.closeStreams(inStream, outStream);
-                    System.exit(1);
+                    // Try to send bytes back to client
+                    try {
+                        // TODO:
+                    } catch (/* TODO: What exceptions? */) {
+                        Client.handleException(e, "");
+                    }
+                } catch (/* TODO: What exceptions? */) {
+                    Client.handleException(e, "");
                 }
-            } catch (IOException e) {
-                System.out.println("Error accepting connection!");
-                e.printStackTrace();
-                Client.closeStreams(inStream, outStream);
-                System.exit(1);
+            } catch (/* TODO: What exceptions? */) {
+                Client.handleException(e, "");
             }
-        } catch (IOException e) {
-            System.out.println("Error opening socket!");
-            e.printStackTrace();
-            System.exit(1);
-        } finally {
-            // Close non-autocloseable resources
-            Client.closeStreams(inStream, outStream);
+        } catch (/* TODO: What exceptions? */) {
+            Client.handleException(e, "");
         }
     }
 
